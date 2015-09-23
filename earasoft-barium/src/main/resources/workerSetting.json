@@ -1,0 +1,8 @@
+{
+    "global": {
+        "threadPools": {
+            "coreSize": null, //If null it uses Runtime.getRuntime().availableProcessors()
+            "scaleSize": 1
+        }
+   }
+}

@@ -1,12 +1,37 @@
+### Java ###
 *.class
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+### Python ###
+*.pyc
 
-# Package Files #
-*.jar
-*.war
-*.ear
+### Gradle ###
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+/earasoft-*/build/
+/earasoft-*/bin/
+/earasoft-*/log/
+/earasoft-*/dist/
+
+*/.gradle/
+*/.svn/
+build
+
+### Eclipse ###
+*.pydevproject
+.metadata
+*.tmp
+*.bak
+*.swp
+*~.nib
+*.project
+*.classpath
+*/.settings
+
+### IDEA ###
+*.iml
+*.ipr
+*.iws
+
+.idea/
+.gradle/
+.svn/
+.settings/
