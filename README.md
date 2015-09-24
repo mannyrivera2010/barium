@@ -1,6 +1,6 @@
 ### Intro
 Hello Readers. My name is Manny, I am a software engineer. I strive to be the best I can as a software engineer.
-The "Lean Startup" book has this diagraph    
+The "Lean Startup" book has this diagram    
 ![alt tag](https://raw.githubusercontent.com/mcomp2010/barium/master/imgs/LeanStartupLoopClassic.png)
 
 I am very interested in distributed computing     
