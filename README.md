@@ -1,5 +1,9 @@
 ### Intro
-Hello My name is Manny, I am a software engineer. I am very interested in distributed computing     
+Hello Readers. My name is Manny, I am a software engineer. I strive to be the best I can as a software engineer.
+The "Lean Startup" book has this diagraph
+![alt tag](https://raw.githubusercontent.com/mcomp2010/barium/master/imgs/LeanStartupLoopClassic.png)
+
+I am very interested in distributed computing     
 
 ### Motivation
 This project was done for Towson University Cosc 880 - Graduate Project     
