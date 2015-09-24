@@ -12,9 +12,9 @@ Groovy Distributed Task Management
 
 ![alt tag](https://raw.githubusercontent.com/mcomp2010/barium/master/concept1.png)
 
-
 #### Aragon
-Front-end for **barium**       
+Front-end for **barium** created in nodeJs and AngularJs    
+This is 
 
 ### Development Setup
 This is a guide how to setup nodeJs,git with Yeoman    
