@@ -1,0 +1,627 @@
+{
+    "global": {
+        "threadPools": {
+            "coreSize": null, //If null it uses Runtime.getRuntime().availableProcessors()
+            "scaleSize": 1
+        },
+        "databaseOracleConnection": {
+            "driverClassPath":"oracle.jdbc.driver.OracleDriver",
+            
+            "DEV_dburl":"jdbc:oracle:thin:@lwsnst0023:1531:HHDEV047",
+            "DEV_hostName":"lctcsd0015.merck.com",
+            "DEV_port":"1531",
+            "DEV_sid":"HHDEV047",
+            "DEV_user":"CMSRTPGM",
+            "DEV_password":"cmsrtpgm_d",
+           
+            "TEST_dburl":"jdbc:oracle:thin:@lwsnst0023:25881:HHTST047",
+            "TEST_hostName":"lwsnst0023.merck.com ",
+            "TEST_port":"25881",
+            "TEST_sid":"HHTST047",
+            "TEST_user":"CMSRTPGM",
+            "TEST_password":"cmsrtpgmtst",
+            
+            "PROD_dburl":"jdbc:oracle:thin:@lctcsp0032.merck.com:25881:HHPRD047",
+            "PROD_hostName":"lctcsp0032.merck.com",
+            "PROD_port":"25881",
+            "PROD_sid":"HHPRD047",
+            "PROD_user":"CMSRTPGM",
+            "PROD_password":"cmsrtpgmprd"
+        },
+        "titan-cassandra-es": {
+            "storage.backend":"cassandrathrift",
+            "storage.hostname":"127.0.0.1",
+            // "storage.hostname":"54.56.22.173", //Prod 2004
+            // "storage.hostname":"54.18.86.99" #Test 07
+            // "storage.hostname":"54.56.67.72" #Test 2004
+            "storage.cassandra.keyspace":"titan",
+            //"storage.cassandra.replication-factor":"3,
+            "storage.cassandra.thrift.frame-size":"161",
+            //"storage.cassandra.read-consistency-level":"ONE"
+            //"storage.cassandra.write-consistency-level":"ONE"
+            //"storage.batch-loading":"true
+            "schema.default":"none"
+        },
+        "titan-inMemory-es": {
+            "storage.backend":"inmemory",
+            "index.search.backend":"elasticsearch",
+            "index.search.hostname":"127.0.0.1",
+            "index.search.elasticsearch.client-only":"true",
+            "schema.default":"none"
+        },
+        "problemLastnames":
+            [
+                "Ahn",
+                "Anderson",
+                "Barnes",
+                "Bousquet",
+                "Brown",
+                "Cha",
+                "Chan",
+                "Chan ",
+                "Chang",
+                "Chen",
+                "Cho",
+                "Ch",
+                "Gupta",
+                "Ho ",
+                "Hu",
+                "Huang",
+                "Inoue ",
+                "Jia",
+                "Johnson",
+                "Jones",
+                "Kawamori",
+                "Kim",
+                "Klein ",
+                "Ko",
+                "Kobayashi ",
+                "Kong",
+                "Kwon",
+                "Lee",
+                "Li",
+                "Lim",
+                "Lin",
+                "Lip ",
+                "Liu",
+                "Lu",
+                "Ma",
+                "Makino",
+                "Mannino",
+                "Martin",
+                "Miller",
+                "Moon",
+                "Nakamura ",
+                "Nam",
+                "Ng",
+                "Park",
+                "Sato ",
+                "Shih",
+                "Singh",
+                "Smith",
+                "So",
+                "Song",
+                "SonWang",
+                "Sun ",
+                "Suzuki",
+                "Takahashi",
+                "Tang ",
+                "Taylor",
+                "Thomas",
+                "Tong",
+                "Tung",
+                "Wang",
+                "Ward",
+                "Williams",
+                "Wilson",
+                "Wong",
+                "Wu",
+                "Xiang",
+                "Xu",
+                "Xu ",
+                "Yang",
+                "Yoo",
+                "Yoon",
+                "Yu",
+                "Zhan",
+                "Zhang",
+                "Zhao",
+                "Zhou ",
+                "Zhu",
+                //
+                "Sasaki",
+                "Yoshida",
+                "Xia",
+                "Luo",
+                "van der Jagt",
+                "Aggarwal",
+                "Fuentes",
+                "Hou"
+            ], 
+            "preLetters":[
+                          "A-AM", "AM-B",
+                          "B-BM", "BM-C",
+                          "C-CM", "CM-D",
+                          "D-DM", "DM-E",
+                          "E-EM", "EM-F",
+                          "F-FM", "FM-G",
+                          "G-GM", "GM-H",
+                          "H-HM", "HM-I",
+                          "I-IM", "IM-J",
+                          "J-JM", "JM-K",
+                          "K-KM", "KM-L",
+                          "L-LM", "LM-M",
+                          "M-MM", "MM-N",
+                          "N-NM", "NM-O",
+                          "O-OM", "OM-P",
+                          "P-PM", "PM-Q",
+                          "Q-QM", "QM-R",
+                          "R-RM", "RM-S",
+                          "S-SI", "SI-T",
+                          "T-TM", "TM-U",
+                          "U-UM", "UM-V",
+                          "V-VM", "VM-W",
+                          "W-WM", "WM-X",
+                          "X-XM", "XM-Y",
+                          "Y-YM", "YM-Z",
+                          "Z"
+                ]
+    },
+    "systemVariables": {
+        "hazelcast.config": null, //If null it uses hazelcast config in class path
+        "esclient.ip": null, //if null then InetAddress.getLocalHost().getHostName().toLowerCase()
+        "http.proxyHost":"webproxy.merck.com",
+        "http.proxyPort":"8080",
+        "https.proxyHost":"webproxy.merck.com",
+        "https.proxyHost":"8080",
+        "PHYSICAL_LOCATION":"TEST"
+    },
+    "class": {
+        "com.comsort.personify.graph.common.GraphFactory": {
+            "titanConf": "conf\/graph_config\/titan-cassandra-es.properties",
+            "projectsList": "conf\/projectDetails.properties",
+            "syncSchema": true,
+            "deleteDatabaseFlag": false,  // BE VERY CAREFUL
+            "deleteIndexDirectory": true,
+            "resetFlagsToFalse": true,
+            "createGraphMetadataFlag": false,
+            "index":"search"
+        },"com.comsort.personify.loading.customermasterdata.GroupIdUpdater" :{
+        	"updateProd": true, 
+        	"updateDev": true,
+        	"updateTest": true
+        },
+        "com.comsort.personify.loading.customermasterdata.CmdLoadingTask": {    
+            "threadId": 1,
+            "count": 10000,
+            "maxPersonId": 20000000,
+            "maxOrgId":2,
+            "type": "CMD_PERSON",
+            "projectList": ["CustomerMaster20150429"],  //Optional
+            "loadDate": "20150429",
+            "cassandraHostname": "127.0.0.1", 
+            "oracleDatabaseConnection": { //Get
+                
+//                "dburl":"jdbc:oracle:thin:@lwsnst0023:1531:HHDEV047",  //DEV
+//                "hostName":"lctcsd0015.merck.com",
+//                "port":"1531",
+//                "sid":"HHDEV047",
+//                "user":"CMSRTPGM",
+//                "password":"cmsrtpgm_d",
+//
+//                "dburl":"jdbc:oracle:thin:@lwsnst0023:25881:HHTST047",  //TEST
+//                "hostName":"lwsnst0023.merck.com ",
+//                "port":"25881",
+//                "sid":"HHTST047",
+//                "user":"CMSRTPGM",
+//                "password":"cmsrtpgmtst"
+
+				"dburl":"jdbc:oracle:thin:@lctcsp0032.merck.com:25881:HHPRD047",  //PROD
+				"hostName":"lctcsp0032.merck.com",
+				"port":"25881",
+				"sid":"HHPRD047",
+				"user":"CMSRTPGM",
+				"password":"cmsrtpgmprd"
+                    
+            },
+            "elasticsearchHostname": null 
+           },
+           
+           "com.comsort.personify.loading.cpn.CpnLoadingTask": {    
+               "threadId": 1,
+               "count": 5503,
+               "maxPersonId": 4494717,
+               "maxOrgId":2,
+               "type": "CPN_PEOPLE",
+               "projectList": ["CPN20150727"],  //Optional
+               "loadDate": "20150727",
+               "cassandraHostname": "127.0.0.1", 
+               "oracleDatabaseConnection": { //Get
+                   
+//                   "dburl":"jdbc:oracle:thin:@lwsnst0023:1531:HHDEV047",  //DEV
+//                   "hostName":"lctcsd0015.merck.com",
+//                   "port":"1531",
+//                   "sid":"HHDEV047",
+//                   "user":"CMSRTPGM",
+//                   "password":"cmsrtpgm_d",
+
+//                   "dburl":"jdbc:oracle:thin:@lwsnst0023:25881:HHTST047", //TEST
+//                   "hostName":"lwsnst0023.merck.com ",
+//                   "port":"25881",
+//                   "sid":"HHTST047",
+//                   "user":"CMSRTPGM",
+//                   "password":"cmsrtpgmtst"
+                	   
+                     "dburl":"jdbc:oracle:thin:@lctcsp0032.merck.com:25881:HHPRD047",  //PROD
+                     "hostName":"lctcsp0032.merck.com",
+                     "port":"25881",
+                     "sid":"HHPRD047",
+                     "user":"CMSRTPGM",
+                     "password":"cmsrtpgmprd"
+                       
+               },
+               "elasticsearchHostname": null 
+              },
+              
+        "com.comsort.personify.loading.customermasterdata.CmdLoaderOwner": {
+            "projectList": ["CustomerMaster20150429"],  
+            "cassandraHostname": null, //If null it will use InetAddress.getLocalHost().getHostName().toLowerCase()
+            "sparkPort": 8189, 
+            "loadDate": "20150429", //if null : timestamp yyyyMMdd
+            "skipPeopleOrgMedInst": false,
+            "skipEdges": false,
+            "oracleDatabaseConnection": { //Get
+                
+//				"dburl":"jdbc:oracle:thin:@lwsnst0023:1531:HHDEV047",  //DEV
+//				"hostName":"lctcsd0015.merck.com",
+//				"port":"1531",
+//				"sid":"HHDEV047",
+//				"user":"CMSRTPGM",
+//				"password":"cmsrtpgm_d"
+
+                "dburl":"jdbc:oracle:thin:@lwsnst0023:25881:HHTST047",  //TEST
+                "hostName":"lwsnst0023.merck.com ",
+                "port":"25881",
+                "sid":"HHTST047",
+                "user":"CMSRTPGM",
+                "password":"cmsrtpgmtst"
+                	
+//                "dburl":"jdbc:oracle:thin:@lctcsp0032.merck.com:25881:HHPRD047",  //PROD
+//                "hostName":"lctcsp0032.merck.com",
+//                "port":"25881",
+//                "sid":"HHPRD047",
+//                "user":"CMSRTPGM",
+//                "password":"cmsrtpgmprd"
+            },
+            "elasticsearchHostname": null  //If null it will use InetAddress.getLocalHost().getHostName().toLowerCase()
+        },
+        
+        "com.comsort.personify.loading.cpn.CpnLoaderOwner": {
+            "projectList": ["CPN20150727"],  
+            "cassandraHostname": null, //If null it will use InetAddress.getLocalHost().getHostName().toLowerCase()
+            "sparkPort": 8189, 
+            "loadDate": "20150727", //if null : timestamp yyyyMMdd
+            "skipPeopleOrgMedInst": false,
+            "skipEdges": false,
+            "oracleDatabaseConnection": { //Get
+    
+//				"dburl":"jdbc:oracle:thin:@lwsnst0023:1531:HHDEV047",  //DEV
+//				"hostName":"lctcsd0015.merck.com",
+//				"port":"1531",
+//				"sid":"HHDEV047",
+//				"user":"CMSRTPGM",
+//				"password":"cmsrtpgm_d",
+
+//				"dburl":"jdbc:oracle:thin:@lwsnst0023:25881:HHTST047",  //TEST
+//				"hostName":"lwsnst0023.merck.com ",
+//				"port":"25881",
+//				"sid":"HHTST047",
+//				"user":"CMSRTPGM",
+//				"password":"cmsrtpgmtst"
+                	
+                "dburl":"jdbc:oracle:thin:@lctcsp0032.merck.com:25881:HHPRD047",  //PROD
+                "hostName":"lctcsp0032.merck.com",
+                "port":"25881",
+                "sid":"HHPRD047",
+                "user":"CMSRTPGM",
+                "password":"cmsrtpgmprd"
+            },
+            "elasticsearchHostname": null  //If null it will use InetAddress.getLocalHost().getHostName().toLowerCase()
+        },
+        
+        "com.comsort.personify.utils.matchmerge.altid.MatchingMergeOwner": {
+            "projectList": null,  //if null then do all projects // ["HCV2015"]
+            "cassandraHostname": null, //If null it will use InetAddress.getLocalHost().getHostName().toLowerCase()
+            "elasticsearchHostname": null,  //If null it will use InetAddress.getLocalHost().getHostName().toLowerCase()
+            "mergeBy" : ["email", "mentionId"],
+            "graphModifications": false, //If null it will default to false
+            "letters": null //if null it will get global preLetters variable Ex) ["A-AM","AM-B",]
+        },
+        "com.comsort.personify.utils.matchmerge.associatenetwork.AssociateNetworkOwner":{
+            "projectList": null,  //if null then do all projects // ["HCV2015"]
+            "cassandraHostname": null, //If null it will use InetAddress.getLocalHost().getHostName().toLowerCase()
+            "elasticsearchHostname": null,  //If null it will use InetAddress.getLocalHost().getHostName().toLowerCase()
+            "graphModifications": false, //If null it will default to false
+            "letters": null //if null it will get global preLetters variable Ex) ["A-AM","AM-B",]
+        },
+        "com.comsort.personify.utils.matchmerge.organization.OrganizationNetworkOwner":{
+            "projectList": null,  //if null then do all projects // ["HCV2015"]
+            "cassandraHostname": null, //If null it will use InetAddress.getLocalHost().getHostName().toLowerCase()
+            "elasticsearchHostname": null,  //If null it will use InetAddress.getLocalHost().getHostName().toLowerCase()
+            "graphModifications": false, //If null it will default to false
+            "letters": null //if null it will get global preLetters variable Ex) ["A-AM","AM-B",]
+        },
+        "com.comsort.titanprojectloader.AutoMerger": {
+            "projectList": [
+                "RenalCellCarcinoma",
+                "DiabetesMellitusType2",
+                "ClinicalGastrointestinalCancer",
+                "InflammatoryBowel",
+                "RheumatoidArthritis",
+                "PsoriaticArthritis",
+                "Psoriasis",
+                "RespiratorySyncytialVirus2014",
+                "PulmonaryHypertension",
+                "CDiff2015",
+                "CDiff2014",
+                "AIT",
+                "BladderCancer",
+                "Osteo",
+                "PneumococcalVaccine",
+                "HerpesZosterVaccine",
+                "AdultVaccineImplementation",
+                "Gastric",
+                "LungCancer",
+                "PeripheralArterialDisease",
+                "Vorapaxar",
+                "HCV2015",
+                "MaternalMortality2015"
+            ]
+        },
+        "com.comsort.titanprojectloader.graph.PersonModifier": {
+            "projectList": [
+                "PediatricHexavalent",
+                "OvarianNeoplasms",
+                "RenalCellCarcinoma",
+                "VaricellaHerpesZoster",
+                "Fertility",
+                "CancerVaccines",
+                "Gastric",
+                "Cytomegalovirus",
+                "LungCancer",
+                "HumanImmunodeficiencyVirus",
+                "AdjuvantsSLI",
+                "Anesthesia",
+                "PneumococcalDisease",
+                "Melanoma",
+                "RheumatoidArthritis",
+                "Vorapaxar",
+                "OveractiveBladder",
+                "Psoriasis",
+                "InflammatoryBowel",
+                "SystemicLupusErythematosusSLI",
+                "MeaslesMumpsRubella",
+                "Chlamydia",
+                "HPV",
+                "PsoriaticArthritis",
+                "DiabetesMellitusType2"
+            ]
+        },
+        "com.comsort.titanprojectloader.TagCreator": {
+            "tagList": [
+                {
+                    "tagInfo": [
+                        "1",
+                        "AIT"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "2",
+                        "CDiff"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "5",
+                        "Pneumococcal"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "6",
+                        "Herpes Zoster"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "7",
+                        "Oncology"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "8",
+                        "Bladder Cancer"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "9",
+                        "Osteoporosis"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "10",
+                        "Respiratory"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "11",
+                        "Infectious Diseases"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "12",
+                        "Hospital"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "13",
+                        "Vaccines"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "14",
+                        "Implementation"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "15",
+                        "Cardio"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "16",
+                        "Gastric Cancer"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "17",
+                        "Lung Cancer"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "18",
+                        "Acute Coronary Syndromes"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "19",
+                        "Rheumatoid Arthritis"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "20",
+                        "Immunology"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "21",
+                        "Pain"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "22",
+                        "Psoriatic Arthritis"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "23",
+                        "Derm"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "24",
+                        "Renal Cell Carcinoma"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "25",
+                        "Diabetes Type2"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "26",
+                        "Diabetes"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "27",
+                        "Psoriasis"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "28",
+                        "Inflammatory Bowel Diseases"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "29",
+                        "Adult Vaccines"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "30",
+                        "Peripheral Arterial Disease"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "31",
+                        "Women's Health"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "32",
+                        "Clinical Gastrointestinal Cancer"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "33",
+                        "RSV"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "34",
+                        "Pulmonary Hypertension"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "35",
+                        "HCV"
+                    ]
+                },
+                {
+                    "tagInfo": [
+                        "36",
+                        "Maternal Mortality"
+                    ]
+                }
+            ],
+            "projectList": [
+                {
+                    "project": "MaternalMortality2015",
+                    "tags": [
+                        "36"
+                    ]
+                }
+            ]
+        }
+    }
+}
