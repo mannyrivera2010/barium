@@ -1,7 +1,7 @@
-### barium
+### Barium
 Groovy Distributed Task Management    
 
-### aragon
+### Aragon
 Front-end for **barium**       
 
 ### Development Setup
