@@ -1,10 +1,13 @@
 ### Intro
 Hello Readers. My name is Manny, I am a software engineer. I strive to be the best I can as a software engineer.
-The "Lean Startup" book has this diagram    
+The "Lean Startup" book has this diagram which as inspired me.    
 ![alt tag](https://raw.githubusercontent.com/mcomp2010/barium/master/imgs/LeanStartupLoopClassic.png)
 
-I am very interested in distributed computing     
-
+#### Interests
+ * distributed computing     
+ * scalability
+ * learning new technologies 
+ 
 ### Motivation
 This project was done for Towson University Cosc 880 - Graduate Project     
 
