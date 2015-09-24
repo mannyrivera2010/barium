@@ -1,6 +1,9 @@
 ### Barium
 Groovy Distributed Task Management    
 
+![alt tag](https://github.com/mcomp2010/barium/blob/develop/concept.png)
+
+
 ### Aragon
 Front-end for **barium**       
 
