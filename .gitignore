@@ -35,3 +35,14 @@ build
 .gradle/
 .svn/
 .settings/
+
+aragon/node_modules
+aragon/public
+aragon/.tmp
+aragon/.idea
+aragon/client/bower_components
+aragon/dist
+aragon//server/config/local.env.js
+aragon/npm-debug.log
+
+
