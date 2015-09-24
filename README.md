@@ -13,7 +13,7 @@ The naming of the sub-projects was inspired by spanish cities names (Logo and Ar
 #### Lugo
 Groovy Distributed Task Management    
 
-![alt tag](https://raw.githubusercontent.com/mcomp2010/barium/master/img/concept1.png)
+![alt tag](https://raw.githubusercontent.com/mcomp2010/barium/master/imgs/concept1.png)
 
 ##### Task Framework Overview
  * Ability to use the processing power of many CPU cores over many machines
