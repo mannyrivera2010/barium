@@ -1,0 +1,149 @@
+import java.text.SimpleDateFormat
+
+def d    = new Date()
+def time = new SimpleDateFormat( "HH:mm '(GMT'Z')'" ).format( d )
+def date = new SimpleDateFormat( 'MMMM dd, yyyy' ).format( d )
+
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'eclipse'
+apply plugin:'application'
+apply plugin: 'maven'
+
+defaultTasks 'tasks'
+
+mainClassName = "com.earasoft.cli.Cli"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+group = "com.earasoft.barium"
+version = '1.2.1'
+
+ext{
+    implementationTitle = 'barium'
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': implementationTitle, 'Implementation-Version': version
+    }
+}
+
+//copying all dependencies attached to 'compile' into a specific folder
+task copyAllDependencies(type: Copy, dependsOn: classes) {
+    //referring to the 'compile' configuration
+    from configurations.compile
+    into "$project.projectDir"+'/build/dist/libs'
+}
+
+task jarDist(type: Jar, dependsOn: copyAllDependencies){
+    def Properties versionProps = new Properties()
+    def versionPropsFile = file('version.properties')
+    if(versionPropsFile.exists())
+        versionProps.load(new FileInputStream(versionPropsFile))
+    def build_number= (versionProps['VERSION_CODE'] ?: "0").toInteger() + 1
+    versionProps['VERSION_CODE'] = build_number.toString()
+    versionProps.store(versionPropsFile.newWriter(), null)
+    
+    FileTree tree = fileTree(dir: "$project.projectDir"+'/build/dist/libs')
+    List libraries = []
+    tree.visit {element ->
+        libraries << "libs//"+element.relativePath
+    }
+    
+    //
+    manifest {
+        attributes 'Implementation-Title': implementationTitle, 'Implementation-Version': version
+        attributes 'Main-Class': mainClassName
+        attributes 'Build-Machine': InetAddress.getLocalHost().toString()
+        attributes 'Build-Number': build_number
+        attributes 'Build-Time': d.toString()
+        attributes 'Class-path': libraries.join(' ')
+    }
+    
+    destinationDir = new File("$project.projectDir"+"/build/dist")
+
+    with jar
+}
+
+
+repositories {
+    mavenCentral()
+    maven { url "https://maven-us.nuxeo.org/nexus/content/repositories/public/" }
+}
+
+groovydoc {
+    use             = true
+    groovyClasspath = configurations.compile // http://issues.gradle.org/browse/GRADLE-1391
+    destinationDir  = new File(( System.getProperty( 'groovydocDir' ) ?: project.buildDir.path + '/groovydoc' ),
+                               ( project.version.contains( '-SNAPSHOT' ) ? '' : project.version ))
+    header = 'Earasoft Worker Framework'
+    footer = 'Earasoft Worker Framework - GroovyDoc was generated at ' + "$time on $date." + """
+
+"""
+
+    link 'http://static.springsource.org/spring/docs/3.2.x/javadoc-api/', 'org.springframework.'
+    link 'http://download.oracle.com/javase/6/docs/api/',                 'java.'
+    link 'http://groovy.codehaus.org/api/',                               'groovy.', 'org.codehaus.groovy.'
+    link 'http://commons.apache.org/net/apidocs/',                        'org.apache.commons.net.'
+    link 'http://truezip.java.net/apidocs/',                              'de.schlichtherle.'
+}
+
+
+dependencies {
+    compile 'com.ning:async-http-client:1.8.14'
+
+    compile 'commons-cli:commons-cli:1.2'
+    compile 'org.codehaus.groovy:groovy:2.3.3'
+    compile 'org.codehaus.groovy:groovy-all:2.3.3'
+	compile 'com.hazelcast:hazelcast-all:3.3'
+	
+    compile 'com.google.inject:guice:3.0'
+	compile 'com.google.guava:guava:18.0'
+
+        
+	compile 'com.sparkjava:spark-core:2.1'
+	compile 'com.sparkjava:spark-template-velocity:2.0.0'
+	
+	compile 'io.vertx:vertx-core:3.0.0'
+	
+	
+    /*
+     * Metrics
+     */
+    compile 'io.dropwizard.metrics:metrics-core:3.1.1'
+    compile 'io.dropwizard.metrics:metrics-servlets:3.1.1'
+    
+    /*
+     * Logging
+     */
+    compile 'org.slf4j:slf4j-api:1.7.12'
+    compile 'org.slf4j:slf4j-log4j12:1.7.12'
+    
+    //compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.0.2'
+    //compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.0.2'
+    //compile group: 'org.apache.logging.log4j', name: 'log4j-1.2-api', version: '2.0.2'
+	testCompile "org.codehaus.groovy:groovy:2.3.3"
+    testCompile group: 'junit', name: 'junit', version:'4.10'
+}
+
+configurations {
+    compile.exclude module: 'slf4j-simple'
+}
+
+test {
+    systemProperties 'property': 'value'
+}
+
+uploadArchives {
+    repositories {
+	    mavenDeployer {
+            repository(url: "file://"+"$project.projectDir"+"/build/mavenRepo")
+        }
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.0'
+}

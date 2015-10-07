@@ -1,0 +1,18 @@
+<hazelcast>
+  <group>
+      <name>development</name>
+      <password>development</password>
+  </group>
+  <network>
+    <port>5710</port>
+    <join>
+      <multicast enabled="false"></multicast>
+      <tcp-ip enabled="true">
+        <member>localhost</member>
+      </tcp-ip>
+    </join>
+  </network>
+  <properties>
+    <property name="hazelcast.logging.type">log4j</property>
+  </properties>
+</hazelcast>
