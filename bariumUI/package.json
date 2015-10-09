@@ -1,9 +1,9 @@
 {
-  "name": "sb-admin",
-  "version": "0.0.0",
+  "name": "bariumUI",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/start-angular/sb-admin-angular"
+    "url": "https://github.com/mannyrivera2010/barium"
   },
   "dependencies": {},
   "devDependencies": {

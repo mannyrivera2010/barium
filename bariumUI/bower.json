@@ -1,6 +1,6 @@
 {
-  "name": "bariumUI",
-  "version": "0.1.0",
+  "name": "sb-admin",
+  "version": "0.0.0",
   "dependencies": {
     "angular": "1.2.16",
     "json3": "~3.3.1",
