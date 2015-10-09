@@ -114,7 +114,6 @@ class GenericHazelcastWorker implements WorkerService {
                     }
                 })
         
-		
         while(keepRunning.get()){  //Take one task until thread pool is full and report to master so that other slaves do not repeat work.
             int activeThreadCount = this.executor.getActiveCount()
             int maxThreadCount = this.executor.getMaximumPoolSize()

@@ -41,7 +41,7 @@ public class GenericTaskWrapper implements Runnable{
     
     @Override
     public void run() {
-        long startTimeMs = StaticUtils.getMillisSeconds()
+        long startTimeMs = System.currentTimeMillis()
         Map results = ["success": true]
         results["taskStartDate"] = StaticUtils.getCurrentTimeString()
         try{
@@ -65,11 +65,11 @@ public class GenericTaskWrapper implements Runnable{
             logger.error("Task Error", StackTraceUtils.sanitize(e))
             results["success"] = false
             results["exceptionMessage"] = e.getMessage()
-            results["exceptionStacktrace"] = GeneralUtils.toStringList(StackTraceUtils.deepSanitize(e))
+            //results["exceptionStacktrace"] = GeneralUtils.toStringList(StackTraceUtils.deepSanitize(e))
         }finally{
-            long endTimeMs = System.currentMillisTime()
+            long endTimeMs = System.currentTimeMillis()
             results["taskTookMs"] = endTimeMs - startTimeMs
-            results["taskTookMinutes"] = Double.parseDouble(GeneralUtils.formatNumber((endTimeMs - startTimeMs)/1000/60))
+            //results["taskTookMinutes"] = Double.parseDouble(GeneralUtils.formatNumber((endTimeMs - startTimeMs)/1000/60))
             results["taskEndedDate"] = StaticUtils.getCurrentTimeString()
         }
         

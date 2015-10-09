@@ -1,81 +1,69 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title></title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width">
-    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-    <!-- build:css(.) styles/vendor.css -->
-    <!-- bower:css -->
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
-    <!-- endbower -->
-    <!-- endbuild -->
-    <!-- build:css(.tmp) styles/main.css -->
-    <link rel="stylesheet" href="styles/main.css">
-    <!-- endbuild -->
-  </head>
-  <body ng-app="bariumUiApp">
-    <!--[if lte IE 8]>
-      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-    <![endif]-->
+<html class="no-js">
+<head>
+<meta charset="utf-8">
+<title>BariumUI 0.1</title>
+<meta name="description" content="BariumUI">
+<meta name="viewport" content="width=device-width">
+<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+<!-- build:css(.) styles/vendor.css -->
+<!-- bower:css -->
+<link rel="stylesheet"
+	href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
+<!-- endbower -->
+<!-- endbuild -->
 
-    <!-- Add your site or application content here -->
-    <div class="header">
-      <div class="navbar navbar-default" role="navigation">
-        <div class="container">
-          <div class="navbar-header">
+<!-- build:css(.tmp) styles/main.css -->
+<link rel="stylesheet" href="styles/main.css">
+<link rel="stylesheet" href="styles/sb-admin-2.css">
+<link rel="stylesheet" href="styles/timeline.css">
+<link rel="stylesheet"
+	href="bower_components/metisMenu/dist/metisMenu.min.css">
+<link rel="stylesheet"
+	href="bower_components/angular-loading-bar/build/loading-bar.min.css">
+<link rel="stylesheet"
+	href="bower_components/font-awesome/css/font-awesome.min.css"
+	type="text/css">
+<!-- endbuild -->
 
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#js-navbar-collapse">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
+<!-- build:js(.) scripts/vendor.js -->
+<!-- bower:js -->
+<script src="bower_components/jquery/dist/jquery.min.js"></script>
+<script src="bower_components/angular/angular.min.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script
+	src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+<script src="bower_components/json3/lib/json3.min.js"></script>
+<script src="bower_components/oclazyload/dist/ocLazyLoad.min.js"></script>
+<script
+	src="bower_components/angular-loading-bar/build/loading-bar.min.js"></script>
+<script
+	src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+<script src="bower_components/metisMenu/dist/metisMenu.min.js"></script>
+<script src="bower_components/Chart.js/Chart.min.js"></script>
+<!-- endbower -->
+<!-- endbuild -->
 
-            <a class="navbar-brand" href="#/">bariumUi</a>
-          </div>
+<!-- build:js({.tmp,app}) scripts/scripts.js -->
+<script src="scripts/app.js"></script>
+<script src="js/sb-admin-2.js"></script>
+<!-- endbuild -->
 
-          <div class="collapse navbar-collapse" id="js-navbar-collapse">
+<!-- Custom CSS -->
 
-            <ul class="nav navbar-nav">
-              <li class="active"><a href="#/">Home</a></li>
-              <li><a ng-href="#/about">About</a></li>
-              <li><a ng-href="#/">Contact</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
+<!-- Custom Fonts -->
 
-    <div class="container">
-    <div ng-view=""></div>
-    </div>
+<!-- Morris Charts CSS -->
+<!-- <link href="styles/morrisjs/morris.css" rel="stylesheet"> -->
 
-    <div class="footer">
-      <div class="container">
-        <p><span class="glyphicon glyphicon-heart"></span> from the Yeoman team</p>
-      </div>
-    </div>
+</head>
 
-    <!-- build:js(.) scripts/vendor.js -->
-    <!-- bower:js -->
-    <script src="bower_components/jquery/dist/jquery.js"></script>
-    <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="bower_components/angular-animate/angular-animate.js"></script>
-    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
-    <script src="bower_components/angular-resource/angular-resource.js"></script>
-    <script src="bower_components/angular-route/angular-route.js"></script>
-    <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
-    <script src="bower_components/angular-touch/angular-touch.js"></script>
-    <!-- endbower -->
-    <!-- endbuild -->
+<body>
 
-        <!-- build:js({.tmp,app}) scripts/scripts.js -->
-        <script src="scripts/app.js"></script>
-        <script src="scripts/controllers/main.js"></script>
-        <script src="scripts/controllers/about.js"></script>
-        <!-- endbuild -->
+	<div ng-app="sbAdminApp">
+		<div ui-view></div>
+	</div>
+
 </body>
+
 </html>
