@@ -7,23 +7,41 @@
     </div>
     <!-- /.row -->
     <div class="row">
-        
-        <stats number="6" comments="New comments!" colour="primary" type="comments"></stats>
-        <stats number="12" comments="New tasks!" colour="primary" type="user"></stats>
-        <stats number="18" comments="New orders!" colour="yellow" type="shopping-cart"></stats>
-        <stats number="24" comments="Support tickets!" colour="red" type="support"></stats>
-
+        <p>
+            <strong>Tasks</strong>
+            <span class="pull-right text-muted">40% Complete (40 out of 100 scheduled completed)</span>
+        </p>
+        <div class="progress progress-striped active">
+            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">
+                <span class="sr-only">40% Complete (success)</span>
+            </div>
+        </div>
     </div>
-    
     <!-- /.panel -->
     <div class="row">
         <div class="col-lg-8">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <i class="fa fa-clock-o fa-fw"></i> Responsive Timeline
+                    <i class="fa fa-clock-o fa-fw"></i> Task History
                 </div>
                 <!-- /.panel-heading -->
-                <timeline></timeline>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>taskId</th>
+                            <th>status</th>
+                            <th>timeInMillis</th>
+                            <th>classTask</th>
+                        </tr>
+                    </thead>
+                    <tr ng-repeat="status in taskHistoryList">
+                        <td>{{ status.taskId }}</td>
+                        <td>{{ status.status }}</td>
+                        <td>{{ status.timeInMillis }}</td>
+                        <td>{{ status.classTask }}</td>
+                    </tr>
+                </table>
+
                 <!-- /.panel-body -->
             </div>
             <!-- /.panel -->
@@ -35,13 +53,12 @@
                     <i class="fa fa-bell fa-fw"></i> Notifications Panel
                 </div>
                 <!-- /.panel-heading -->
-                <notifications></notifications> 
+                <notifications></notifications>
                 <!-- /.panel-body -->
             </div>
             <!-- /.panel -->
 
-            <chat></chat>
-             <!-- /.panel .chat-panel -->
+            <!-- /.panel .chat-panel -->
         </div>
         <!-- /.col-lg-4 -->
     </div>

@@ -47,7 +47,7 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 	protected Long taskId = 1 //Used to id task
 	protected List<Map<Object, Object>> endPoints = new LinkedList<Map<Object, Object>>()
 	protected Map<String, Object> webStore = new TreeMap()
-	protected Map<String, Object> tasksStatus = new TreeMap()
+	protected List<Map> tasksStatus = []
 	protected Set<String> currentRunningTaskSet = new TreeSet()
 	protected List taskHistory = []
 	protected long startTime = System.currentTimeMillis()
@@ -92,22 +92,26 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 
 		registerEndPoint('/endpoints.json','index',
 				{Request request, Response response ->
+					response.header("Access-Control-Allow-Origin", "*")
 					return endPoints
 				});
 
 		registerEndPoint('/webstore.json','Location of webstore',
 				{Request request, Response response ->
+					response.header("Access-Control-Allow-Origin", "*")
 					webStore
 				});
 
 	    	registerEndPoint('/taskStore.json','Location of task store',
 				{Request request, Response response ->
+					response.header("Access-Control-Allow-Origin", "*")
 					taskHistory
 				});
 			
 			
 		registerEndPoint('/status.json','Status of Hazelcast',
 				{Request request, Response response ->
+					response.header("Access-Control-Allow-Origin", "*")
 					["status": 'running',
 						"uptimeMillis": System.currentTimeMillis() - startTime,
 						"version": 1.0,
@@ -117,10 +121,12 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 
 		registerEndPoint('/queue.json','queue info',
 				{Request request, Response response ->
+					response.header("Access-Control-Allow-Origin", "*")
 					['queueSize': this.messagingService.getTasksQueue().size() ,
 						'tasksStatus': tasksStatus,
 						'currentRunningTaskSet': currentRunningTaskSet]
 				});
+
 
 		loggerBase.info("Webservice port:" + sparkPort)
 
@@ -136,11 +142,8 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 			taskContext['_id'] = taskId
 			taskId ++
 		}
-
-		if(tasksStatus[taskContext['_id']] == null) tasksStatus[taskContext['_id']] = [:]
-		tasksStatus[taskContext['_id']]['history'] = []
 		
-		tasksStatus[taskContext['_id']]['history'] << ['taskId': taskContext['_id'], 'status': 'Scheduled', 'timeInMillis': System.currentTimeMillis(), 'classTask': classStringForTask]
+		tasksStatus << ['taskId': taskContext['_id'], 'status': 'Scheduled', 'timeInMillis': System.currentTimeMillis(), 'classTask': classStringForTask]
 
 		MessageBuilder currentMessage = MessageBuilder.build().setTaskContext(taskContext)
 				.setTaskClass(classStringForTask)
@@ -191,7 +194,7 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 
 			if(messageResults.getEventType().equals("TakingTask")){
 				taskHistory.add(messageResults)
-				tasksStatus[messageResults.getTaskContext()['_id']]['history'] << ['taskId': messageResults.getTaskContext()['_id'], 'status': 'In Progress', 'timeInMillis': System.currentTimeMillis(), 'classTask': messageResults.getTaskClass()]
+				tasksStatus << ['taskId': messageResults.getTaskContext()['_id'], 'status': 'In Progress', 'timeInMillis': System.currentTimeMillis(), 'classTask': messageResults.getTaskClass()]
 				currentRunningTaskSet.add(messageResults.getNodeId() + "-" + messageResults.getTaskContext()['_id'])
 
 				try{
@@ -206,7 +209,7 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 				currentRunningTaskSet.remove(messageResults.getNodeId() + "-" + messageResults.getTaskContext()['_id'])
 
 				if(messageResults.hasResults()){					
-					tasksStatus[messageResults.getTaskContext()['_id']]['history'] << ['taskId': messageResults.getTaskContext()['_id'], 'status': 'Finished', 'timeInMillis': System.currentTimeMillis(), 'classTask': messageResults.getTaskClass()]
+					tasksStatus << ['taskId': messageResults.getTaskContext()['_id'], 'status': 'Finished', 'timeInMillis': System.currentTimeMillis(), 'classTask': messageResults.getTaskClass()]
 					
 					try{
 						handleFinishedTaskEvent(messageResults)
@@ -215,7 +218,7 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 					}
 				}else{
 					loggerBase.warn("MESSAGE SHOULD HAVE Results: " + messageResults)
-					tasksStatus[messageResults.getTaskContext()['_id']]['status'] = 'MSG Error'
+					tasksStatus << ['taskId': messageResults.getTaskContext()['_id'], 'status': 'Error', 'timeInMillis': System.currentTimeMillis(), 'classTask': messageResults.getTaskClass()]
 				}
 			}else{
 				try{
