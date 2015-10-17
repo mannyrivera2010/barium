@@ -92,7 +92,8 @@ groovydoc {
 
 
 dependencies {
-    compile 'com.ning:async-http-client:1.8.14'
+    compile 'com.ning:async-http-client:1.9.31'
+
 
     compile 'commons-cli:commons-cli:1.2'
     compile 'org.codehaus.groovy:groovy:2.3.3'
@@ -106,8 +107,9 @@ dependencies {
 	compile 'com.sparkjava:spark-core:2.1'
 	compile 'com.sparkjava:spark-template-velocity:2.0.0'
 	
-	compile 'io.vertx:vertx-core:3.0.0'
-	
+	compile 'io.netty:netty-all:4.0.32.Final'
+
+
 	
     /*
      * Metrics

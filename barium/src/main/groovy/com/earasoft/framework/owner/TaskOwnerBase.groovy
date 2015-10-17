@@ -17,6 +17,8 @@ import com.earasoft.framework.common.StaticUtils
 import com.earasoft.framework.messaging.HazelcastMessagingService
 import com.earasoft.framework.messaging.MessagingService
 import com.earasoft.framework.worker.GenericHazelcastWorker
+import com.earasoft.websocket.WebSocketServer
+import com.earasoft.websocket.WebSocketServerHandler
 import com.google.inject.Inject
 import com.hazelcast.core.MemberAttributeEvent
 import com.hazelcast.core.MembershipEvent
@@ -102,13 +104,13 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 					webStore
 				});
 
-	    	registerEndPoint('/taskStore.json','Location of task store',
+		registerEndPoint('/taskStore.json','Location of task store',
 				{Request request, Response response ->
 					response.header("Access-Control-Allow-Origin", "*")
 					taskHistory
 				});
-			
-			
+
+
 		registerEndPoint('/status.json','Status of Hazelcast',
 				{Request request, Response response ->
 					response.header("Access-Control-Allow-Origin", "*")
@@ -142,7 +144,7 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 			taskContext['_id'] = taskId
 			taskId ++
 		}
-		
+
 		tasksStatus << ['taskId': taskContext['_id'], 'status': 'Scheduled', 'timeInMillis': System.currentTimeMillis(), 'classTask': classStringForTask]
 
 		MessageBuilder currentMessage = MessageBuilder.build().setTaskContext(taskContext)
@@ -182,11 +184,13 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 				})
 
 	}
-	
+
 	private void workerEventsMessageHandler(Message<MessageBuilder> message){
+		
 		MessageBuilder messageResults = message.getMessageObject()
 		println "-------------------INCOMING----------------"  + messageResults
 
+		WebSocketServerHandler.broadcast(messageResults.toString())
 
 		if(messageResults.isSameOwner(messagingService.getFullNodeID())){
 			loggerBase.info("HISTORY: " + messageResults.toMap().toJsonString())
@@ -208,9 +212,9 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 				taskHistory.add(messageResults)
 				currentRunningTaskSet.remove(messageResults.getNodeId() + "-" + messageResults.getTaskContext()['_id'])
 
-				if(messageResults.hasResults()){					
+				if(messageResults.hasResults()){
 					tasksStatus << ['taskId': messageResults.getTaskContext()['_id'], 'status': 'Finished', 'timeInMillis': System.currentTimeMillis(), 'classTask': messageResults.getTaskClass()]
-					
+
 					try{
 						handleFinishedTaskEvent(messageResults)
 					}catch(Exception E){
@@ -291,6 +295,20 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 		preqCheck(sparkPort)
 		startWebServer(sparkPort)
 		startMasterServer()
+
+
+		//
+		Thread slave = new Thread(new Runnable(){
+					public void run(){
+
+						WebSocketServer webSocketServer = new WebSocketServer()
+						webSocketServer.start()
+					}
+				})
+		slave.setName("Internal Worker")
+		slave.setDaemon(false)
+		slave.start() //Start a worker on this machine also
+		//
 
 		if(startWorkerDaemon == true){
 			startDaemonWorker()
