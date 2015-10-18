@@ -5,11 +5,17 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import com.earasoft.framework.common.MessageBuilder
+import com.earasoft.framework.common.MetaClassesBase
 import com.earasoft.framework.messaging.HazelcastMessagingService
 import com.earasoft.framework.messaging.MessagingService
 import com.earasoft.framework.owner.TaskOwnerBase
 
 class MathTemplateOwner extends TaskOwnerBase {
+	
+	static{
+		MetaClassesBase.load()
+	}
+	
     private static final Logger logger = LoggerFactory.getLogger(MathTemplateOwner.class)
     
     public MathTemplateOwner(MessagingService messagingService){
@@ -76,7 +82,7 @@ class MathTemplateOwner extends TaskOwnerBase {
         shellTaskOwnerBase.startServiceSystem()
         shellTaskOwnerBase.startDaemonWorker() //This is Optional
         
-        shellTaskOwnerBase.startWork(null)
+        //shellTaskOwnerBase.startWork(null)
         
         println "********************** SHUTDOWN ********************************"
         

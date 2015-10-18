@@ -9,7 +9,7 @@ angular.module('sbAdminApp').controller(
 		function($scope, $position, $http) {
 
 			if ($scope.taskHistoryList === undefined) {
-				$http.get("http://localhost:8189/queue.json").success(
+				$http.get("http://localhost:8080/queue.json").success(
 						function(response) {
 							$scope.taskHistoryList = response.tasksStatus;
 							// console.log(response);

@@ -1,24 +1,36 @@
 package com.earasoft.framework.owner;
 
+import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE
+import static io.netty.handler.codec.http.HttpHeaders.Names.HOST
+import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND
+import static io.netty.handler.codec.http.HttpResponseStatus.OK
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1
+import io.netty.buffer.ByteBuf
+import io.netty.buffer.Unpooled
+import io.netty.channel.ChannelHandlerContext
+import io.netty.handler.codec.http.DefaultFullHttpResponse
+import io.netty.handler.codec.http.FullHttpRequest
+import io.netty.handler.codec.http.FullHttpResponse
+import io.netty.handler.codec.http.HttpHeaders
+import io.netty.util.CharsetUtil
+
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicBoolean
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import spark.Request
-import spark.Response
-import spark.Route
-import spark.Spark
-
 import com.earasoft.framework.common.HazelUtils
 import com.earasoft.framework.common.MessageBuilder
 import com.earasoft.framework.common.StaticUtils
+import com.earasoft.framework.http.RouteHit
+import com.earasoft.framework.http.RouterHits
+import com.earasoft.framework.http.WebSocketServer
+import com.earasoft.framework.http.WebSocketServerHandler
+import com.earasoft.framework.http.WebSocketServerIndexPage
 import com.earasoft.framework.messaging.HazelcastMessagingService
 import com.earasoft.framework.messaging.MessagingService
 import com.earasoft.framework.worker.GenericHazelcastWorker
-import com.earasoft.websocket.WebSocketServer
-import com.earasoft.websocket.WebSocketServerHandler
 import com.google.inject.Inject
 import com.hazelcast.core.MemberAttributeEvent
 import com.hazelcast.core.MembershipEvent
@@ -71,49 +83,138 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 	 */
 	protected void registerEndPoint(String url, String desc, Closure closure){
 		endPoints.add(['url':url, 'desc': desc])
-		Spark.get(url, "application/json", new Route() {
-					@Override
-					public Object handle(Request request, Response response) {
-						response.raw().setContentType("application/json");
 
+		RouterHits.get(url, new RouteHit(){
+					@Override
+					public FullHttpResponse handle(ChannelHandlerContext ctx, FullHttpRequest request) {
 						String data = null
 						try{
-							data = closure(request, response).toJsonString()
+							data = closure(request).toJsonString()
 						}catch(Exception e){
 							data = ['success': false, "message": e.getMessage()].toJsonString()
+							loggerBase.error("Http Error", e)
 						}
-						return data
+
+
+						ByteBuf content = Unpooled.copiedBuffer(data, CharsetUtil.UTF_8);
+						FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, content);
+
+						response.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
+						HttpHeaders.setContentLength(response, content.readableBytes());
+						return response;
 					}
 				});
+
+
+		//		Spark.get(url, "application/json", new Route() {
+		//					@Override
+		//					public Object handle(Request request, Response response) {
+		//						response.raw().setContentType("application/json");
+		//
+		//						String data = null
+		//						try{
+		//							data = closure(request, response).toJsonString()
+		//						}catch(Exception e){
+		//							data = ['success': false, "message": e.getMessage()].toJsonString()
+		//						}
+		//						return data
+		//					}
+		//				});
 	}
 
 	protected void startWebServer(int sparkPort = 8189){
-		Spark.port(sparkPort);
 
-		Spark.staticFileLocation("/www/owner"); // Static files
+		RouterHits.get("/", new RouteHit(){
+					@Override
+					public FullHttpResponse handle(ChannelHandlerContext ctx, FullHttpRequest request) {
+						ByteBuf content = WebSocketServerIndexPage.getContent(RouterHits.getWebSocketLocation(request));
+						FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, content);
+
+						response.headers().set(CONTENT_TYPE, "text/html; charset=UTF-8");
+						HttpHeaders.setContentLength(response, content.readableBytes());
+						return response;
+					}
+				});
+
+
+		RouterHits.get("/test", new RouteHit(){
+					@Override
+					public FullHttpResponse handle(ChannelHandlerContext ctx, FullHttpRequest request) {
+						ByteBuf content = Unpooled.copiedBuffer(['test':'hello'].toJsonPrettyString(), CharsetUtil.UTF_8);
+						FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, content);
+
+						response.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
+						HttpHeaders.setContentLength(response, content.readableBytes());
+						return response;
+					}
+				});
+
+			
+			def instance = this
+			Thread slave = new Thread()
+			
+			
+		RouterHits.get("/startWork", new RouteHit(){
+					@Override
+					public FullHttpResponse handle(ChannelHandlerContext ctx, FullHttpRequest request) {
+
+						Map output = [:]
+						if(slave.isAlive()){
+							output = ['message':'job already working']
+						}else{
+						
+						slave =  new Thread(new Runnable(){
+							
+													public void run(){
+							
+														instance.startWork(null)
+													}
+												})
+										slave.setName("Work")
+										slave.setDaemon(true)
+										
+							slave.start() 
+							output = ['message':'Started work']
+						}
+			
+
+
+						ByteBuf content = Unpooled.copiedBuffer(output.toJsonPrettyString(), CharsetUtil.UTF_8);
+						FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, content);
+
+						response.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
+						HttpHeaders.setContentLength(response, content.readableBytes());
+						return response;
+					}
+				});
+
 
 		registerEndPoint('/endpoints.json','index',
-				{Request request, Response response ->
-					response.header("Access-Control-Allow-Origin", "*")
+				{
+					FullHttpRequest request//, Response response ->
+					//response.header("Access-Control-Allow-Origin", "*")
 					return endPoints
 				});
 
 		registerEndPoint('/webstore.json','Location of webstore',
-				{Request request, Response response ->
-					response.header("Access-Control-Allow-Origin", "*")
+				{
+					FullHttpRequest request//, Response response ->
+					//response.header("Access-Control-Allow-Origin", "*")
 					webStore
 				});
 
 		registerEndPoint('/taskStore.json','Location of task store',
-				{Request request, Response response ->
-					response.header("Access-Control-Allow-Origin", "*")
+				{
+					FullHttpRequest request//, Response response ->
+					//response.header("Access-Control-Allow-Origin", "*")
 					taskHistory
 				});
 
 
 		registerEndPoint('/status.json','Status of Hazelcast',
-				{Request request, Response response ->
-					response.header("Access-Control-Allow-Origin", "*")
+				{
+					FullHttpRequest request//, Response response ->
+					//response.header("Access-Control-Allow-Origin", "*")
 					["status": 'running',
 						"uptimeMillis": System.currentTimeMillis() - startTime,
 						"version": 1.0,
@@ -122,8 +223,9 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 				});
 
 		registerEndPoint('/queue.json','queue info',
-				{Request request, Response response ->
-					response.header("Access-Control-Allow-Origin", "*")
+				{
+					FullHttpRequest request//, Response response ->
+					//response.header("Access-Control-Allow-Origin", "*")
 					['queueSize': this.messagingService.getTasksQueue().size() ,
 						'tasksStatus': tasksStatus,
 						'currentRunningTaskSet': currentRunningTaskSet]
@@ -186,11 +288,11 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 	}
 
 	private void workerEventsMessageHandler(Message<MessageBuilder> message){
-		
+
 		MessageBuilder messageResults = message.getMessageObject()
 		println "-------------------INCOMING----------------"  + messageResults
 
-		WebSocketServerHandler.broadcast(messageResults.toString())
+		
 
 		if(messageResults.isSameOwner(messagingService.getFullNodeID())){
 			loggerBase.info("HISTORY: " + messageResults.toMap().toJsonString())
@@ -198,7 +300,9 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 
 			if(messageResults.getEventType().equals("TakingTask")){
 				taskHistory.add(messageResults)
-				tasksStatus << ['taskId': messageResults.getTaskContext()['_id'], 'status': 'In Progress', 'timeInMillis': System.currentTimeMillis(), 'classTask': messageResults.getTaskClass()]
+				Map temp = ['taskId': messageResults.getTaskContext()['_id'], 'status': 'In Progress', 'timeInMillis': StaticUtils.getCurrentTimeString(System.currentTimeMillis()), 'classTask': messageResults.getTaskClass()]
+				tasksStatus << temp
+				WebSocketServerHandler.broadcast(temp.toJsonString())
 				currentRunningTaskSet.add(messageResults.getNodeId() + "-" + messageResults.getTaskContext()['_id'])
 
 				try{
@@ -235,6 +339,9 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 			loggerBase.warn("Ignored Message because not for this owner - " + messageResults)
 		}
 	}
+
+	@Override
+	abstract public void startWork(Map settings)
 
 	/* (non-Javadoc)
 	 * @see com.comsort.personify.loading.framework.TaskOwnerBaseI#handleFinishedTaskEvent(com.comsort.personify.loading.framework.MessageBuilder)
@@ -276,7 +383,7 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 		if(loaderWorkerStarted.get()){
 			loaderSlave.stop()
 		}
-		Spark.stop()
+		//Spark.stop()
 
 		messagingService.stop()
 		shutdownChild()

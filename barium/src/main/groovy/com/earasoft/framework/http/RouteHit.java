@@ -1,4 +1,4 @@
-package com.earasoft.websocket;
+package com.earasoft.framework.http;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;

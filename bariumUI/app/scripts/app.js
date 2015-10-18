@@ -101,6 +101,11 @@ angular
         templateUrl:'views/pages/blank.html',
         url:'/blank'
     })
+      .state('dashboard.chatPage',{
+        templateUrl:'views/pages/chatPage.html',
+        url:'/chatPage',
+        controller:'ChatPageCtrl',
+    })
       .state('login',{
         templateUrl:'views/pages/login.html',
         url:'/login'

@@ -9,5 +9,7 @@ class GuiceTst {
         Injector injector = Guice.createInjector(new MessagingModule());
         MessagingService messageService = injector.getInstance(MessagingService.class)
         messageService.start()
+		
+		
     }
 }

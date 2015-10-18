@@ -1,4 +1,4 @@
-package com.earasoft.websocket;
+package com.earasoft.framework.http;
 
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE
 import static io.netty.handler.codec.http.HttpHeaders.Names.HOST
@@ -18,11 +18,15 @@ import io.netty.handler.codec.http.HttpMethod
 import io.netty.handler.codec.http.HttpResponseStatus
 import io.netty.util.CharsetUtil
 
-public class RouterHits {
+import com.earasoft.framework.common.MetaClassesBase
 
+public class RouterHits {
 	private static Map<HttpMethod, Map<String, RouteHit>> rounterMap = new HashMap<HttpMethod, Map<String, RouteHit>>();
 
 
+	static{
+		MetaClassesBase.load()
+	}
 	/**
 	 * Map the route for HTTP GET requests
 	 *
@@ -36,32 +40,42 @@ public class RouterHits {
 		if(rounterMap.get(HttpMethod.GET)){
 			if(rounterMap.get(HttpMethod.GET).get(path)){
 				println "Path $path for GET already exist"
+			}else{
+				rounterMap.get(HttpMethod.GET).put(path, route)
 			}
 		}else{
+			println 'test'
 			Map temp = [:]
 			temp[path] = route
 			rounterMap.put(HttpMethod.GET, temp);
 		}
-
 	}
 
-
-	public static void execute(ChannelHandlerContext ctx, FullHttpRequest request){
-		FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.FORBIDDEN);
-		
+	public static boolean checkIfMappingExit(FullHttpRequest request){
 		if(rounterMap.get(HttpMethod.GET)){
 			if(rounterMap.get(HttpMethod.GET).get(request.getUri())){
-				
+				return true
+			}
+		}
+		return false
+	}
+	
+	public static void execute(ChannelHandlerContext ctx, FullHttpRequest request){
+		FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.FORBIDDEN);
+
+		if(rounterMap.get(HttpMethod.GET)){
+			if(rounterMap.get(HttpMethod.GET).get(request.getUri())){
+
 				RouteHit current = rounterMap.get(HttpMethod.GET).get(request.getUri())
 				response = current.handle(ctx, request)
 			}else{
-			    response = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND);
+				response = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND);
 			}
 		}else{
 			response = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND);
 			println "not found...."
 		}
-		
+
 		//println "FullHttpRequest + " + response
 		sendHttpResponse(ctx, request, response);
 	}
@@ -92,33 +106,6 @@ public class RouterHits {
 	}
 
 	static main(args) {
-		
-		RouterHits.get("/", new RouteHit(){
-						@Override
-						public FullHttpResponse handle(ChannelHandlerContext ctx, FullHttpRequest request) {
-							ByteBuf content = WebSocketServerIndexPage.getContent(RouterHits.getWebSocketLocation(request));
-							FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, content);
-				
-							response.headers().set(CONTENT_TYPE, "text/html; charset=UTF-8");
-							HttpHeaders.setContentLength(response, content.readableBytes());
-							return response;
-						}
-					});
-	
-
-//		
-//		RouterHits.get("/favicon.ico", new RouteHit(){
-//			
-//								@Override
-//								Object handle(ChannelHandlerContext ctx, FullHttpRequest request, FullHttpResponse response)  throws Exception{
-//									FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND);
-//									
-//								}
-//							})
-//		
-
-
-	
 
 	}
 }

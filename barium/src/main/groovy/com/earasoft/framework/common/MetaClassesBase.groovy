@@ -17,18 +17,12 @@ import org.slf4j.LoggerFactory
  */
 
 class MetaClassesBase {
-    private static final Logger logger = LoggerFactory.getLogger(MetaClassesBase.class)
-
-    
-
-    
+    private static final Logger logger = LoggerFactory.getLogger(MetaClassesBase.class)    
     
     static main(args){
         String defaultCharacterEncoding = System.getProperty("file.encoding");
         System.out.println("defaultCharacterEncoding by property: " + defaultCharacterEncoding);
         System.out.println("defaultCharacterEncoding by charSet: " + Charset.defaultCharset());
-        
-        
     }
     
     public static void load() {

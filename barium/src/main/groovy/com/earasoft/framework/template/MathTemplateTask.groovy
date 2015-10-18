@@ -17,6 +17,10 @@ public class MathTemplateTask extends GenericTaskAbstract{
             
             println "taskContext:" + taskContext
             results['sum'] = taskContext['num1'] + taskContext['num2']
+			
+			Random r = new Random();
+			Thread.sleep(r.nextInt(60000)+5000)
+			
             
         
     }
