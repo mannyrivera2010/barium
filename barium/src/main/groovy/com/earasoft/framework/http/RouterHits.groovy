@@ -22,7 +22,7 @@ import com.earasoft.framework.common.MetaClassesBase
 
 public class RouterHits {
 	private static Map<HttpMethod, Map<String, RouteHit>> rounterMap = new HashMap<HttpMethod, Map<String, RouteHit>>();
-
+	
 
 	static{
 		MetaClassesBase.load()

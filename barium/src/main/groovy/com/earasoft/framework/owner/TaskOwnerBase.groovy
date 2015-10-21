@@ -26,8 +26,8 @@ import com.earasoft.framework.common.StaticUtils
 import com.earasoft.framework.http.RouteHit
 import com.earasoft.framework.http.RouterHits
 import com.earasoft.framework.http.WebSocketServer
-import com.earasoft.framework.http.WebSocketServerHandler
 import com.earasoft.framework.http.WebSocketServerIndexPage
+import com.earasoft.framework.http.WebsocketUtils
 import com.earasoft.framework.messaging.HazelcastMessagingService
 import com.earasoft.framework.messaging.MessagingService
 import com.earasoft.framework.worker.GenericHazelcastWorker
@@ -288,7 +288,6 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 	}
 
 	private void workerEventsMessageHandler(Message<MessageBuilder> message){
-
 		MessageBuilder messageResults = message.getMessageObject()
 		println "-------------------INCOMING----------------"  + messageResults
 
@@ -302,7 +301,7 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 				taskHistory.add(messageResults)
 				Map temp = ['taskId': messageResults.getTaskContext()['_id'], 'status': 'In Progress', 'timeInMillis': StaticUtils.getCurrentTimeString(System.currentTimeMillis()), 'classTask': messageResults.getTaskClass()]
 				tasksStatus << temp
-				WebSocketServerHandler.broadcast(temp.toJsonString())
+				WebsocketUtils.broadcastToAll(temp)
 				currentRunningTaskSet.add(messageResults.getNodeId() + "-" + messageResults.getTaskContext()['_id'])
 
 				try{

@@ -74,6 +74,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -137,7 +138,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     
     private WebSocketServerHandshaker handshaker;
     
-    static final ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+    public static final ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     
     @Override
     public void channelRead0(ChannelHandlerContext ctx, Object msg) {
@@ -148,6 +149,8 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             
         }
     }
+    
+
 
     @Override
     public void channelActive(final ChannelHandlerContext ctx) {
@@ -215,6 +218,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         if(RouterHits.checkIfMappingExit(request)){
         	//Do Router Mapping First
             RouterHits.execute(ctx, request);
+            return;
         }
         
         if ("/websocket".equals(request.getUri())) {
@@ -232,9 +236,9 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         }
         
         final String uri = request.getUri();
-        System.out.println("uri: " + uri);
+        //System.out.println("uri: " + uri);
         final String path = sanitizeUri("www",uri);
-        System.out.println("path: " + path);
+        //System.out.println("path: " + path);
         if (path == null) {
         	 sendHttpResponse(ctx, request, new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.FORBIDDEN));
        
@@ -293,7 +297,6 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
                 return;
             }
         }
-        
         
         RandomAccessFile raf;
         try {
@@ -390,6 +393,8 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 
     private void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
 
+    	System.out.println("pre1:" + frame);
+    	
         // Check for closing frame
         if (frame instanceof CloseWebSocketFrame) {
             handshaker.close(ctx.channel(), (CloseWebSocketFrame) frame.retain());
@@ -403,48 +408,13 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             throw new UnsupportedOperationException(String.format("%s frame types not supported", frame.getClass()
                     .getName()));
         }
-
         
-        
+        WebsocketMessageHandlerI websocketMessageHandler = new WebSocketMessageHander(ctx, channels);
         // Send the uppercase string back.
-        String request = ((TextWebSocketFrame) frame).text();
-        System.err.printf("%s received %s%n", ctx.channel(), request);
         
+        String requestRaw = ((TextWebSocketFrame) frame).text();
         
-    
-        broadcast(ctx,request.toUpperCase());
-    
-       // ctx.channel().write(new TextWebSocketFrame(request.toUpperCase()));
-    }
-    
-    /**
-     * Broadcast the specified message to all registered channels except the sender.
-     * 
-     * @param context Message context
-     * @param message Message to broadcast
-     */
-    private void broadcast(ChannelHandlerContext context, String message) {
-        System.out.println(">>"+channels);
-        for (Channel channel: channels) {
-        	System.out.println(">>>"+channel);
-            //if (channel != context.channel()) {
-                channel.writeAndFlush(new TextWebSocketFrame(message));
-            //}
-        
-        	
-        }
-    }
-    
-    public static void broadcast(String message) {
-     
-        for (Channel channel: channels) {
-        	System.out.println(">>>"+channel);
-            //if (channel != context.channel()) {
-                channel.writeAndFlush(new TextWebSocketFrame(message));
-            //}
-        
-        	
-        }
+        websocketMessageHandler.handleMessage(requestRaw);
     }
     
     /**

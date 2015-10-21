@@ -2,6 +2,8 @@ package com.earasoft.framework.common;
 
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+import java.util.List;
+import java.util.Map;
 
 public class StaticUtils {
 
@@ -9,6 +11,31 @@ public class StaticUtils {
 		// TODO Auto-generated method stub
 
 		
+	}
+	
+	/**
+	 * Used to check required keys for a map
+	 * @param map
+	 * @param keys
+	 * @return
+	 */
+	public static Map checkMapRequiredKeys(Object input, List keys, String extraInfo = ''){
+		if(!(input instanceof Map))
+			throw new Exception("The input object is not a [Map] type it is a [" + input.class.getSimpleName()+'] type')
+		
+		Map map = (Map) input
+		
+		List missingKeys = []
+		
+		for (key in keys){
+			if(!map.containsKey(key))
+				missingKeys << key
+		}
+		
+		if(missingKeys)
+			throw new Exception(extraInfo + " - Map is missing keys:" + missingKeys)
+		
+		return map
 	}
 	
     /**

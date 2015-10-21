@@ -61,9 +61,6 @@ public final class WebSocketServer {
 
     
     public void start() throws Exception {
-    	
-		RouterHits.main()
-    	
     	 // Configure SSL.
         final SslContext sslCtx;
         if (SSL) {
@@ -108,8 +105,6 @@ slave.setDaemon(false)
 slave.start() //Start a worker on this machine also
 
 
-		
-        
         System.out.println("hello");
     }
 }
