@@ -67,10 +67,13 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 	protected long startTime = System.currentTimeMillis()
 
 
+	
+	
+	
 	/**
 	 * Preq Check for Port
 	 */
-	protected void preqCheck(int sparkPort = 8189){
+	protected void preqCheck(int sparkPort = 8080){
 		if(!StaticUtils.checkAvailablePort(sparkPort)){
 			loggerBase.error("Port is not Available shutting down. Might mean another master already exist in is machine")
 			loggerBase.error("Failed to start master")
@@ -100,41 +103,26 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 						FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, content);
 
 						response.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
+						response.headers().set('Access-Control-Allow-Origin', "*");
 						HttpHeaders.setContentLength(response, content.readableBytes());
 						return response;
 					}
 				});
-
-
-		//		Spark.get(url, "application/json", new Route() {
-		//					@Override
-		//					public Object handle(Request request, Response response) {
-		//						response.raw().setContentType("application/json");
-		//
-		//						String data = null
-		//						try{
-		//							data = closure(request, response).toJsonString()
-		//						}catch(Exception e){
-		//							data = ['success': false, "message": e.getMessage()].toJsonString()
-		//						}
-		//						return data
-		//					}
-		//				});
 	}
 
 	protected void startWebServer(int sparkPort = 8189){
-
-		RouterHits.get("/", new RouteHit(){
-					@Override
-					public FullHttpResponse handle(ChannelHandlerContext ctx, FullHttpRequest request) {
-						ByteBuf content = WebSocketServerIndexPage.getContent(RouterHits.getWebSocketLocation(request));
-						FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, content);
-
-						response.headers().set(CONTENT_TYPE, "text/html; charset=UTF-8");
-						HttpHeaders.setContentLength(response, content.readableBytes());
-						return response;
-					}
-				});
+//
+//		RouterHits.get("/", new RouteHit(){
+//					@Override
+//					public FullHttpResponse handle(ChannelHandlerContext ctx, FullHttpRequest request) {
+//						ByteBuf content = WebSocketServerIndexPage.getContent(RouterHits.getWebSocketLocation(request));
+//						FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, content);
+//
+//						response.headers().set(CONTENT_TYPE, "text/html; charset=UTF-8");
+//						HttpHeaders.setContentLength(response, content.readableBytes());
+//						return response;
+//					}
+//				});
 
 
 		RouterHits.get("/test", new RouteHit(){
@@ -217,8 +205,10 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 					//response.header("Access-Control-Allow-Origin", "*")
 					["status": 'running',
 						"uptimeMillis": System.currentTimeMillis() - startTime,
+						"uptimeMinutes": ((System.currentTimeMillis() - startTime)/1000/60) as Integer,
 						"version": 1.0,
 						'members': HazelUtils.getClusterMemberInfo(messagingService.getCluster())
+						
 					]
 				});
 
@@ -287,6 +277,9 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 
 	}
 
+	protected long scheduledTaskCounter = 0
+	protected long completedTaskCounter = 0
+	
 	private void workerEventsMessageHandler(Message<MessageBuilder> message){
 		MessageBuilder messageResults = message.getMessageObject()
 		println "-------------------INCOMING----------------"  + messageResults
@@ -299,7 +292,12 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 
 			if(messageResults.getEventType().equals("TakingTask")){
 				taskHistory.add(messageResults)
-				Map temp = ['taskId': messageResults.getTaskContext()['_id'], 'status': 'In Progress', 'timeInMillis': StaticUtils.getCurrentTimeString(System.currentTimeMillis()), 'classTask': messageResults.getTaskClass()]
+				Map temp = ['_eventType': 'taskStatus', 
+					'taskId': messageResults.getTaskContext()['_id'], 
+					'status': 'In Progress', 
+					'dateTime': StaticUtils.getCurrentTimeString(System.currentTimeMillis()), 
+					'classTask': messageResults.getTaskClass()]
+				
 				tasksStatus << temp
 				WebsocketUtils.broadcastToAll(temp)
 				currentRunningTaskSet.add(messageResults.getNodeId() + "-" + messageResults.getTaskContext()['_id'])
