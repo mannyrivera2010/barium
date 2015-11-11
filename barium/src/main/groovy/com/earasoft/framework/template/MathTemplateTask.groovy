@@ -19,7 +19,7 @@ public class MathTemplateTask extends GenericTaskAbstract{
             results['sum'] = taskContext['num1'] + taskContext['num2']
 			
 			Random r = new Random();
-			Thread.sleep(r.nextInt(60000)+5000)
+			Thread.sleep(r.nextInt(6000)+5000)
 			
             
         

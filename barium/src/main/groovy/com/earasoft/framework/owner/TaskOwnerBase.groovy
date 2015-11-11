@@ -26,8 +26,6 @@ import com.earasoft.framework.common.StaticUtils
 import com.earasoft.framework.http.RouteHit
 import com.earasoft.framework.http.RouterHits
 import com.earasoft.framework.http.WebSocketServer
-import com.earasoft.framework.http.WebSocketServerIndexPage
-import com.earasoft.framework.http.WebsocketUtils
 import com.earasoft.framework.messaging.HazelcastMessagingService
 import com.earasoft.framework.messaging.MessagingService
 import com.earasoft.framework.worker.GenericHazelcastWorker
@@ -54,22 +52,11 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 	 */
 	protected final GenericHazelcastWorker loaderSlave
 	protected final AtomicBoolean loaderWorkerStarted = new AtomicBoolean(false)
-
-	/*
-	 * Task Variables
-	 */
-	protected Long taskId = 1 //Used to id task
-	protected List<Map<Object, Object>> endPoints = new LinkedList<Map<Object, Object>>()
-	protected Map<String, Object> webStore = new TreeMap()
-	protected List<Map> tasksStatus = []
-	protected Set<String> currentRunningTaskSet = new TreeSet()
-	protected List taskHistory = []
-	protected long startTime = System.currentTimeMillis()
-
-
 	
+	protected Storage storage = new Storage()
 	
-	
+	private boolean taskPutIntoQueue = false
+
 	/**
 	 * Preq Check for Port
 	 */
@@ -85,7 +72,7 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 	 * Register EndPoints
 	 */
 	protected void registerEndPoint(String url, String desc, Closure closure){
-		endPoints.add(['url':url, 'desc': desc])
+		storage.addEndPointUrl(url, desc)
 
 		RouterHits.get(url, new RouteHit(){
 					@Override
@@ -97,11 +84,10 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 							data = ['success': false, "message": e.getMessage()].toJsonString()
 							loggerBase.error("Http Error", e)
 						}
-
-
+						
 						ByteBuf content = Unpooled.copiedBuffer(data, CharsetUtil.UTF_8);
 						FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, content);
-
+						
 						response.headers().set(CONTENT_TYPE, "application/json; charset=UTF-8");
 						response.headers().set('Access-Control-Allow-Origin', "*");
 						HttpHeaders.setContentLength(response, content.readableBytes());
@@ -111,18 +97,18 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 	}
 
 	protected void startWebServer(int sparkPort = 8189){
-//
-//		RouterHits.get("/", new RouteHit(){
-//					@Override
-//					public FullHttpResponse handle(ChannelHandlerContext ctx, FullHttpRequest request) {
-//						ByteBuf content = WebSocketServerIndexPage.getContent(RouterHits.getWebSocketLocation(request));
-//						FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, content);
-//
-//						response.headers().set(CONTENT_TYPE, "text/html; charset=UTF-8");
-//						HttpHeaders.setContentLength(response, content.readableBytes());
-//						return response;
-//					}
-//				});
+		//
+		//		RouterHits.get("/", new RouteHit(){
+		//					@Override
+		//					public FullHttpResponse handle(ChannelHandlerContext ctx, FullHttpRequest request) {
+		//						ByteBuf content = WebSocketServerIndexPage.getContent(RouterHits.getWebSocketLocation(request));
+		//						FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, content);
+		//
+		//						response.headers().set(CONTENT_TYPE, "text/html; charset=UTF-8");
+		//						HttpHeaders.setContentLength(response, content.readableBytes());
+		//						return response;
+		//					}
+		//				});
 
 
 		RouterHits.get("/test", new RouteHit(){
@@ -137,11 +123,11 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 					}
 				});
 
-			
-			def instance = this
-			Thread slave = new Thread()
-			
-			
+
+		def instance = this
+		Thread slave = new Thread()
+
+
 		RouterHits.get("/startWork", new RouteHit(){
 					@Override
 					public FullHttpResponse handle(ChannelHandlerContext ctx, FullHttpRequest request) {
@@ -150,22 +136,20 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 						if(slave.isAlive()){
 							output = ['message':'job already working']
 						}else{
-						
-						slave =  new Thread(new Runnable(){
-							
-													public void run(){
-							
-														instance.startWork(null)
-													}
-												})
-										slave.setName("Work")
-										slave.setDaemon(true)
-										
-							slave.start() 
+
+							slave =  new Thread(new Runnable(){
+
+										public void run(){
+
+											instance.startWork(null)
+										}
+									})
+							slave.setName("Work")
+							slave.setDaemon(true)
+
+							slave.start()
 							output = ['message':'Started work']
 						}
-			
-
 
 						ByteBuf content = Unpooled.copiedBuffer(output.toJsonPrettyString(), CharsetUtil.UTF_8);
 						FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, content);
@@ -176,49 +160,46 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 					}
 				});
 
-
-		registerEndPoint('/endpoints.json','index',
+		registerEndPoint('/endpoints','index',
 				{
 					FullHttpRequest request//, Response response ->
-					//response.header("Access-Control-Allow-Origin", "*")
-					return endPoints
+					return storage.endPoints()
 				});
 
-		registerEndPoint('/webstore.json','Location of webstore',
+		registerEndPoint('/webstore','Location of webstore',
 				{
 					FullHttpRequest request//, Response response ->
-					//response.header("Access-Control-Allow-Origin", "*")
-					webStore
+					storage.getWebStore()
 				});
 
-		registerEndPoint('/taskStore.json','Location of task store',
+		registerEndPoint('/taskStore','Location of task store',
 				{
 					FullHttpRequest request//, Response response ->
-					//response.header("Access-Control-Allow-Origin", "*")
-					taskHistory
+					storage.getTaskHistory()
 				});
 
 
-		registerEndPoint('/status.json','Status of Hazelcast',
+		registerEndPoint('/status','Status of Hazelcast',
 				{
 					FullHttpRequest request//, Response response ->
 					//response.header("Access-Control-Allow-Origin", "*")
 					["status": 'running',
-						"uptimeMillis": System.currentTimeMillis() - startTime,
-						"uptimeMinutes": ((System.currentTimeMillis() - startTime)/1000/60) as Integer,
+						"uptimeMillis": System.currentTimeMillis() - storage.getStartTime(),
+						"uptimeMinutes": ((System.currentTimeMillis() - storage.getStartTime())/1000/60) as Double,
 						"version": 1.0,
 						'members': HazelUtils.getClusterMemberInfo(messagingService.getCluster())
-						
+
 					]
 				});
 
-		registerEndPoint('/queue.json','queue info',
+		registerEndPoint('/queue','queue info',
 				{
 					FullHttpRequest request//, Response response ->
 					//response.header("Access-Control-Allow-Origin", "*")
 					['queueSize': this.messagingService.getTasksQueue().size() ,
-						'tasksStatus': tasksStatus,
-						'currentRunningTaskSet': currentRunningTaskSet]
+						'tasksStatus': storage.getTasksStatus(),
+						'currentRunningTaskSet': storage.getCurrentRunningTaskSet(), 
+						'progress': storage.getProgress()]
 				});
 
 
@@ -227,23 +208,22 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 		println "NON--" + this.messagingService
 	}
 
-	private boolean taskPutIntoQueue = false
 	/**
 	 * Helper method to put task into queue
 	 */
 	protected void putTaskIntoQueue(Map taskContext, String classStringForTask, boolean delay = true){
 		if(taskContext['_id'] == null){
-			taskContext['_id'] = taskId
-			taskId ++
+			taskContext['_id'] = storage.getTaskId()
+			storage.incrementTaskId()
 		}
-
-		tasksStatus << ['taskId': taskContext['_id'], 'status': 'Scheduled', 'timeInMillis': System.currentTimeMillis(), 'classTask': classStringForTask]
-
+		
 		MessageBuilder currentMessage = MessageBuilder.build().setTaskContext(taskContext)
 				.setTaskClass(classStringForTask)
 				.setOwner(messagingService.getFullNodeID())
 				.setEventType("TaskGeneration")
 				.setDelay(delay)
+				
+		storage.scheduleTask(currentMessage)
 
 		messagingService.addTaskToQueue(currentMessage)
 		taskPutIntoQueue = true
@@ -276,46 +256,29 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 				})
 
 	}
-
-	protected long scheduledTaskCounter = 0
-	protected long completedTaskCounter = 0
 	
+	/**
+	 * This method is used to handle worker event message
+	 * @param message
+	 */
 	private void workerEventsMessageHandler(Message<MessageBuilder> message){
 		MessageBuilder messageResults = message.getMessageObject()
 		println "-------------------INCOMING----------------"  + messageResults
-
-		
-
 		if(messageResults.isSameOwner(messagingService.getFullNodeID())){
 			loggerBase.info("HISTORY: " + messageResults.toMap().toJsonString())
 			//ESClient.logEvent(messageResults.toMap(), 'testing')
 
 			if(messageResults.getEventType().equals("TakingTask")){
-				taskHistory.add(messageResults)
-				Map temp = ['_eventType': 'taskStatus', 
-					'taskId': messageResults.getTaskContext()['_id'], 
-					'status': 'In Progress', 
-					'dateTime': StaticUtils.getCurrentTimeString(System.currentTimeMillis()), 
-					'classTask': messageResults.getTaskClass()]
-				
-				tasksStatus << temp
-				WebsocketUtils.broadcastToAll(temp)
-				currentRunningTaskSet.add(messageResults.getNodeId() + "-" + messageResults.getTaskContext()['_id'])
+				storage.takingTask(messageResults)
 
 				try{
 					handleTakingTaskEvent(messageResults)
 				}catch(Exception E){
 					loggerBase.error("ERROR WITH HANDLING MESSAGE")
 				}
-
-
 			}else if(messageResults.getEventType().equals("FinishedTask")){
-				taskHistory.add(messageResults)
-				currentRunningTaskSet.remove(messageResults.getNodeId() + "-" + messageResults.getTaskContext()['_id'])
-
+				storage.finishedTask(messageResults)
 				if(messageResults.hasResults()){
-					tasksStatus << ['taskId': messageResults.getTaskContext()['_id'], 'status': 'Finished', 'timeInMillis': System.currentTimeMillis(), 'classTask': messageResults.getTaskClass()]
-
 					try{
 						handleFinishedTaskEvent(messageResults)
 					}catch(Exception E){
@@ -323,7 +286,6 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 					}
 				}else{
 					loggerBase.warn("MESSAGE SHOULD HAVE Results: " + messageResults)
-					tasksStatus << ['taskId': messageResults.getTaskContext()['_id'], 'status': 'Error', 'timeInMillis': System.currentTimeMillis(), 'classTask': messageResults.getTaskClass()]
 				}
 			}else{
 				try{
@@ -364,9 +326,7 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 		messagingService.start(true)
 		membershipMonitoring()
 		loggerBase.info("HazelcastInstance Socket Address:" + messagingService.getLocalMember().getSocketAddress())
-
 		//messagingService.publishOwnerEvents() //"Master Finished Initialization"  //TODO
-
 	}
 
 	/* (non-Javadoc)
@@ -399,12 +359,9 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 		preqCheck(sparkPort)
 		startWebServer(sparkPort)
 		startMasterServer()
-
-
-		//
+		
 		Thread slave = new Thread(new Runnable(){
 					public void run(){
-
 						WebSocketServer webSocketServer = new WebSocketServer()
 						webSocketServer.start()
 					}
@@ -412,8 +369,7 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 		slave.setName("Internal Worker")
 		slave.setDaemon(false)
 		slave.start() //Start a worker on this machine also
-		//
-
+		
 		if(startWorkerDaemon == true){
 			startDaemonWorker()
 		}
@@ -438,9 +394,8 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 		}
 	}
 
-
 	protected waitTillTasksFinished() {
-		while(!messagingService.getTasksQueue().isEmpty() || !currentRunningTaskSet.isEmpty() || taskPutIntoQueue == true){ // Wait till all task are finished
+		while(!messagingService.getTasksQueue().isEmpty() || !storage.getCurrentRunningTaskSet().isEmpty() || taskPutIntoQueue == true){ // Wait till all task are finished
 			Thread.sleep(500)
 			taskPutIntoQueue = false
 		}

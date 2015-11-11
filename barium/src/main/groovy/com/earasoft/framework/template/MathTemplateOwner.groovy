@@ -85,10 +85,6 @@ class MathTemplateOwner extends TaskOwnerBase {
         //shellTaskOwnerBase.startWork(null)
         
         println "********************** SHUTDOWN ********************************"
-        
-        
-        
-        
         //
         //        Injector injector = Guice.createInjector(new MessagingModule(), new OwnerModule() );
         //        TaskOwnerService taskOwner = injector.getInstance(ShellTaskOwnerBase.class)
