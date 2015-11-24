@@ -263,9 +263,9 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 	 */
 	private void workerEventsMessageHandler(Message<MessageBuilder> message){
 		MessageBuilder messageResults = message.getMessageObject()
-		println "-------------------INCOMING----------------"  + messageResults
+		//println "-------------------INCOMING----------------"  + messageResults
 		if(messageResults.isSameOwner(messagingService.getFullNodeID())){
-			loggerBase.info("HISTORY: " + messageResults.toMap().toJsonString())
+			//loggerBase.info("HISTORY: " + messageResults.toMap().toJsonString())
 			//ESClient.logEvent(messageResults.toMap(), 'testing')
 
 			if(messageResults.getEventType().equals("TakingTask")){
@@ -295,7 +295,7 @@ public abstract class TaskOwnerBase implements TaskOwnerService {
 				}
 			}
 		}else{
-			loggerBase.warn("Ignored Message because not for this owner - " + messageResults)
+			//loggerBase.warn("Ignored Message because not for this owner - " + messageResults)
 		}
 	}
 

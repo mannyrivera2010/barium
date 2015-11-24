@@ -1,0 +1,15 @@
+html
+  head
+    title!= title
+  body
+    h1!= message
+    h2
+      a(href='/data') data
+   
+    form(method="post", enctype="multipart\/form-data", action="/")
+      input(type="hidden", name="sid", value=sessionId)
+      p data:
+        input(type="file", name="data")
+      p
+       input(type="submit", value="upload")
+  

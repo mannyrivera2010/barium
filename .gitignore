@@ -36,13 +36,14 @@ build
 .svn/
 .settings/
 
-aragon/node_modules
-aragon/public
-aragon/.tmp
-aragon/.idea
-aragon/client/bower_components
-aragon/dist
-aragon//server/config/local.env.js
-aragon/npm-debug.log
+fileserver/node_modules
+fileserver/public
+fileserver/.tmp
+fileserver/client/bower_components
+fileserver/dist
+fileserver//server/config/local.env.js
+fileserver/npm-debug.log
 
 
+*.nxml
+/barium/output.txt
