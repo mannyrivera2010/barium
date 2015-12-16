@@ -82,7 +82,7 @@ class MathTemplateOwner extends TaskOwnerBase {
         shellTaskOwnerBase.startServiceSystem()
         shellTaskOwnerBase.startDaemonWorker() //This is Optional
         
-        //shellTaskOwnerBase.startWork(null)
+        shellTaskOwnerBase.startWork(null)
         
         println "********************** SHUTDOWN ********************************"
         //
