@@ -18,7 +18,7 @@ A Quote from Towson University Computer Science Website-
 barium is the top project name    
 The naming of the sub-projects was inspired by spanish cities names (Logo and Aragon)
 
-#### Lugo
+#### Barium
 Groovy Distributed Task Management    
 
 ![alt tag](https://raw.githubusercontent.com/mcomp2010/barium/master/imgs/concept1.png)
@@ -40,7 +40,7 @@ Groovy Distributed Task Management
      * Uses Hazelcast for communication 
 
 
-#### Aragon
+#### BariumUI
 Front-end for **barium** created in nodeJs and AngularJs    
 This is 
 
@@ -54,7 +54,7 @@ https://nodejs.org/en/
 for Git Dependency    
 https://git-scm.com/
 
-**Future Work**
+**Future Work**     
 There is still a lot of work to do   
 Unit Testing, refactoring code, using better method of storing information (redis, riak, mongodb)
 
