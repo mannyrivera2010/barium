@@ -52,5 +52,9 @@ for Node Dependency
 https://nodejs.org/en/    
 
 for Git Dependency    
-https://git-scm.com/    
+https://git-scm.com/
+
+**Future Work**
+There is still a lot of work to do   
+Unit Testing, refactoring code, using better method of storing information (redis, riak, mongodb)
 
